@@ -56,6 +56,38 @@ Run with:
 cargo run -- <subcommand> [options]
 ```
 
+## Docker
+
+You don’t need to bake a specific run command: the image entrypoint is the binary, and you pass the subcommand when you run the container.
+
+Build:
+
+```bash
+docker build -t alpha-rust .
+```
+
+Run (pass credentials via env and the command you want):
+
+```bash
+docker run --rm -it \
+  -e BRAIN_USERNAME="$BRAIN_USERNAME" \
+  -e BRAIN_PASSWORD="$BRAIN_PASSWORD" \
+  -v "$(pwd)/records:/app/records" \
+  -v "$(pwd)/logs:/app/logs" \
+  alpha-rust hunt --dataset-id fundamental2
+```
+
+Example with a `.env` file (mount it and set `DOTENV_PATH` if your dotenvy version supports it, or rely on `-e`):
+
+```bash
+docker run --rm -it --env-file .env \
+  -v "$(pwd)/records:/app/records" \
+  -v "$(pwd)/logs:/app/logs" \
+  alpha-rust refine --hunt-tag fundamental2_usa_1step
+```
+
+Mount `records` and `logs` so state and logs persist on the host. Any subcommand works: `hunt`, `refine`, `check`, `submit`, `datasets`, `datafields`.
+
 ## Command Usage
 
 ### 1) Hunt
