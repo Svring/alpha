@@ -15,7 +15,7 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     let command_name = cli.command.name();
 
-    let guard = init_logging(command_name, &cli.logs_dir)?;
+    let guard = init_logging(command_name, &cli.logs_dir, cli.command.log_subfolder())?;
     let app = match brain::BrainClient::from_cli(&cli) {
         Ok(a) => a,
         Err(e) => {

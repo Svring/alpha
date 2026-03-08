@@ -18,11 +18,23 @@ pub fn daily_log_dir(base: &str) -> PathBuf {
     PathBuf::from(base).join(date.to_string())
 }
 
-/// Returns the path for this run: {command}_{HH-MM-SS}.log
-pub fn run_log_path(base: &str, command: &str) -> PathBuf {
+/// Returns the path for this run.
+/// With subfolder (e.g. dataset id): base/YYYY-MM-DD/{subfolder}/{command}_{HH-MM-SS}.log
+/// Without: base/YYYY-MM-DD/{command}_{HH-MM-SS}.log
+pub fn run_log_path(base: &str, command: &str, subfolder: Option<&str>) -> PathBuf {
     let dir = daily_log_dir(base);
+    let dir = match subfolder {
+        Some(s) if !s.is_empty() => dir.join(sanitize_log_subfolder(s)),
+        _ => dir,
+    };
     let time = Utc::now().format("%H-%M-%S");
     dir.join(format!("{command}_{time}.log"))
+}
+
+fn sanitize_log_subfolder(s: &str) -> String {
+    s.chars()
+        .map(|c| if c.is_ascii_alphanumeric() || c == '_' || c == '-' { c } else { '_' })
+        .collect()
 }
 
 /// Tee writer: writes to both stdout and a file.
@@ -102,10 +114,11 @@ pub struct RunSummary {
     pub alphas_submitted: Option<Vec<String>>,
 }
 
-/// Initialize logging: create date-based dir, open run log file, tee to stdout.
+/// Initialize logging: create date-based dir (and optional subfolder per dataset), open run log file, tee to stdout.
 /// Returns a guard to call `finish()` with the run summary.
-pub fn init(command: &str, logs_base: &str) -> Result<LogGuard> {
-    let path = run_log_path(logs_base, command);
+/// `subfolder` is e.g. dataset id so multiple runs (different datasets) get separate folders under the date.
+pub fn init(command: &str, logs_base: &str, subfolder: Option<&str>) -> Result<LogGuard> {
+    let path = run_log_path(logs_base, command, subfolder);
     fs::create_dir_all(path.parent().unwrap())
         .with_context(|| format!("create log dir {}", path.parent().unwrap().display()))?;
     let mut file = File::options()

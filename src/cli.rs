@@ -47,6 +47,15 @@ impl Commands {
             Commands::Datafields(_) => "datafields",
         }
     }
+
+    /// Log subfolder (e.g. dataset id) so each dataset gets its own folder under logs/YYYY-MM-DD/.
+    pub fn log_subfolder(&self) -> Option<&str> {
+        match self {
+            Commands::Hunt(a) => Some(a.dataset_id.as_str()),
+            Commands::Refine(a) => a.hunt_tag.split('_').next(),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Args)]
