@@ -203,6 +203,8 @@ Override the log directory:
 export ALPHA_LOGS_DIR=/custom/path/to/logs
 ```
 
+Log level defaults to `info` if `RUST_LOG` is not set. To reduce output: `RUST_LOG=warn cargo run -- hunt ...`
+
 ## Architecture
 
 - `src/main.rs`: CLI entrypoint and command dispatch

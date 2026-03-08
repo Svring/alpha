@@ -128,8 +128,9 @@ pub fn init(command: &str, logs_base: &str) -> Result<LogGuard> {
         file: Arc::clone(&file),
     };
 
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
     tracing_subscriber::registry()
-        .with(EnvFilter::from_default_env())
+        .with(filter)
         .with(fmt::layer().with_writer(make_writer).with_ansi(false).with_target(false))
         .init();
 
