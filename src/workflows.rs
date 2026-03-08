@@ -517,7 +517,15 @@ async fn simulate_expression_batch(
     .await
 }
 
-const PROGRESS_LOG_EVERY: usize = 25;
+fn truncate_expr(s: &str, max_len: usize) -> String {
+    let mut it = s.chars();
+    let taken: String = it.by_ref().take(max_len).collect();
+    if it.next().is_some() {
+        format!("{}...", taken)
+    } else {
+        taken
+    }
+}
 
 async fn simulate_expression_batch_var_decay(
     client: &BrainClient,
@@ -579,9 +587,8 @@ async fn simulate_expression_batch_var_decay(
                 let _guard = file_lock.lock().await;
                 append_line(&f, &exp).await?;
                 let n = completed_c.fetch_add(1, Ordering::Relaxed) + 1;
-                if n % PROGRESS_LOG_EVERY == 0 || n == total {
-                    info!("Simulated {}/{}", n, total);
-                }
+                let preview = truncate_expr(&exp, 56);
+                info!("Alpha {}/{}: {} {}", n, total, alpha_id, preview);
             }
             Result::<()>::Ok(())
         }));
