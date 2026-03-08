@@ -1,0 +1,7 @@
+reverse(winsorize(ts_backfill(fn_accrued_liab_a, 120), std=4))
+sqrt(winsorize(ts_backfill(fn_accrued_liab_a, 120), std=4))
+winsorize(ts_backfill(fn_accrued_liab_a, 120), std=4)
+log(winsorize(ts_backfill(fn_accrued_liab_a, 120), std=4))
+ts_rank(winsorize(ts_backfill(fn_accrued_liab_a, 120), std=4), 22)
+ts_rank(winsorize(ts_backfill(fn_accrued_liab_a, 120), std=4), 5)
+ts_rank(winsorize(ts_backfill(fn_accrued_liab_a, 120), std=4), 66)
